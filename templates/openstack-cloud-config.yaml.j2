@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    clusterctl.cluster.x-k8s.io/move: "true"
+  name: openstack-cloud-config
+  namespace: openstack-infrastructure-system
+stringData:
+  clouds.yaml: |
+    clouds:
+      openstack:
+        auth:
+          auth_url: {{openstack.auth_url}}
+          application_credential_id: {{openstack.application_credential_id}}
+          application_credential_secret: {{openstack.application_credential_secret}}
+        regions:
+          - {{openstack.region}}
+        interface: {{openstack.interface}}
+        identity_api_version: 3
+        auth_type: "v3applicationcredential"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    clusterctl.cluster.x-k8s.io/move: "true"
+  name: openstack-cloud-config
+  namespace: default
+stringData:
+  clouds.yaml: |
+    clouds:
+      openstack:
+        auth:
+          auth_url: {{openstack.auth_url}}
+          application_credential_id: {{openstack.application_credential_id}}
+          application_credential_secret: {{openstack.application_credential_secret}}
+        regions:
+          - {{openstack.region}}
+        interface: {{openstack.interface}}
+        identity_api_version: 3
+        auth_type: "v3applicationcredential"

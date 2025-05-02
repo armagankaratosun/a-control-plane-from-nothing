@@ -1,0 +1,12 @@
+- name: download => sveltosctl
+  get_url: 
+    url: https://github.com/projectsveltos/sveltosctl/releases/download/v0.52.2/sveltosctl-linux-amd64
+    dest: /usr/local/bin/sveltosctl
+    mode: "+rx"
+  become: true 
+  become_user: root
+
+- name: template => helm sveltos chart
+  template:
+    src: sveltos.yaml.j2
+    dest:  /var/lib/rancher/rke2/server/manifests/sveltos.yaml

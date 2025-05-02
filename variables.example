@@ -1,0 +1,37 @@
+kubectl_version: v1.33.0
+rke2:
+  token: "token"
+  cni: "cilium"
+  cluster_cidr: "10.42.0.0/16"
+  service_cidr: "10.43.0.0/16"
+  domain: "control-plane.local"
+  version: "v1.31.7+rke2r1"
+  channel: "stable"
+addons:
+  certmanager: true
+  crossplane: true
+  cluster_api: true
+  external_secrets_operator: false
+  certmanager_version: v1.17.2
+  crossplane_version: 1.10.0
+  cluster_api_version: 0.19.0
+cluster_api:
+  core:
+    cluster_api:
+      version: "v1.9.3"
+  bootstrap:
+    rke2:
+      version: "v0.14.0"
+  controlPlane:
+    rke2:
+      version: "v0.14.0"
+providers:
+  openstack: true
+  aws: false
+  gcp: false
+openstack:
+  auth_url: ""
+  application_credential_id: ""
+  application_credential_secret: ""
+  region: "RegionOne"
+  interface: ""

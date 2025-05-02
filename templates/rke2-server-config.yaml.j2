@@ -1,0 +1,9 @@
+write-kubeconfig-mode: "0644"
+token: "{{rke2.token}}"
+cluster-domain: "{{rke2.domain}}"
+tls-san:
+  - "{{ inventory_hostname }}"
+  - "{{ ansible_hostname }}"
+cni: cilium
+cluster-cidr: "{{rke2.cluster_cidr}}"
+service-cidr: "{{rke2.service_cidr}}"

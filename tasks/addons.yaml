@@ -1,0 +1,9 @@
+- name: template => deploy control-plane addons
+  template:
+    src: control-plane-addons.yaml.j2
+    dest:  /var/lib/rancher/rke2/server/manifests/control-plane-addons.yaml
+
+- name: template => create openstack secret
+  template:
+    src: openstack-cloud-config.yaml.j2
+    dest:  /var/lib/rancher/rke2/server/manifests/openstack-cloud-config.yaml

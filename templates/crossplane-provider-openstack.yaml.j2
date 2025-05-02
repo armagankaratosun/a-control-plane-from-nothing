@@ -1,0 +1,35 @@
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-openstack
+spec:
+  package: xpkg.crossplane.io/crossplane-contrib/provider-openstack:v0.6.0
+---
+apiVersion: openstack.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: provider-openstack-config
+  namespace: crossplane-system
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      key: config
+      name: provider-openstack-config
+      namespace: crossplane-system
+---
+# Secret that stores credentials and other configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: provider-openstack-config
+  namespace: crossplane-system
+stringData:
+  config: |
+    {
+    "auth_url": "{{openstack.auth_url}}",
+    "application_credential_id": "{{openstack.application_credential_id}}",
+    "application_credential_secret": "{{openstack.application_credential_secret}}",
+    "region": "{{openstack.region}}"
+    }

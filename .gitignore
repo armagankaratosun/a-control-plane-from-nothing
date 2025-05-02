@@ -35,3 +35,50 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ansible sensitive or environment-specific files
+hosts
+inventory
+*.vault
+group_vars/*.yml
+group_vars/*.yaml
+host_vars/*.yml
+host_vars/*.yaml
+variables.yaml
+variables.yml
+secrets.yaml
+secrets.yml
+
+# Encrypted files (just in case)
+*.age
+*.gpg
+
+# Ansible retry files
+*.retry
+
+# Ignore private SSH keys or similar
+*.pem
+*.key
+*.crt
+
+# Ignore output and temporary files
+*.log
+*.tmp
+*.bak
+
+# Ignore Python cache (common in Ansible environments)
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+.venv/
+env/
+venv/
+
+# Ignore molecule test output (if used)
+.molecule/
+
+# Ignore roles downloaded via ansible-galaxy
+roles/*/
+!roles/requirements.yml

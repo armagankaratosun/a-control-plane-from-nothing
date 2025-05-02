@@ -1,0 +1,4 @@
+- name: template => create crossplane provider openstack 
+  template:
+    src: crossplane-provider-openstack.yaml.j2
+    dest:  /var/lib/rancher/rke2/server/manifests/crossplane-provider-openstack.yaml

@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: projectsveltos
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: sveltos-crds
+  namespace: kube-system
+spec:
+  chart: sveltos-crds
+  repo: https://projectsveltos.github.io/helm-charts
+  version: 0.52.2
+  targetNamespace: projectsveltos
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: sveltos
+  namespace: kube-system
+  annotations:
+    reapply-timestamp: "{{ ansible_date_time.iso8601 }}"
+spec:
+  chart: projectsveltos
+  repo: https://projectsveltos.github.io/helm-charts
+  version: 0.52.2
+  targetNamespace: projectsveltos
+  set:
+    registerMgmtClusterJob.registerMgmtCluster.args[0]: "--name=control-plane"
+    registerMgmtClusterJob.registerMgmtCluster.args[1]: "--labels=role=controlplane"
+    kubernetesClusterDomain: control-plane.local
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: sveltos-dashboard
+  namespace: kube-system
+spec:
+  chart: sveltos-dashboard
+  repo: https://projectsveltos.github.io/helm-charts
+  version: 0.52.2
+  targetNamespace: projectsveltos

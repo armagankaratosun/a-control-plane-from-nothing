@@ -1,0 +1,15 @@
+- name: deploy => control-plane
+  hosts: control-plane-nodes[0]
+  become: true
+  become_user: root
+  become_method: sudo
+  vars_files: variables.yaml
+
+  tasks: 
+
+      - name: create => rke2 cluster
+        include_tasks: tasks/rke2.yaml
+      - name: install => addons
+        include_tasks: tasks/sveltos.yaml
+      - name: install => addons
+        include_tasks: tasks/addons.yaml

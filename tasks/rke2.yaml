@@ -1,0 +1,48 @@
+- name: download => kubectl
+  get_url: 
+    url: https://dl.k8s.io/release/{{kubectl_version}}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: "+rx"
+  become: true 
+  become_user: root
+
+- name: install => helm3
+  shell: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+  become: true 
+  become_user: root
+  ignore_errors: true
+
+- name: create => rke2 config directory
+  file:
+    path: /etc/rancher/rke2
+    state: directory
+
+- name: template => copy rke2 config
+  template:
+    src: rke2-server-config.yaml.j2
+    dest: /etc/rancher/rke2/config.yaml
+
+- name: check => rke2 binary is installed
+  command: /usr/local/bin/rke2 --version
+  register: rke2_version
+  failed_when: false
+  changed_when: false
+  ignore_errors: true
+
+- name: install => rke2 binary
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION={{rke2.version}}  INSTALL_RKE2_CHANNEL={{rke2.channel}} INSTALL_RKE2_TYPE=server sh -
+  when: "'rke2 version {{ rke2.version }}' not in rke2_version.stdout"
+
+- name: start => rke2-server
+  systemd:
+    name: rke2-server
+    enabled: true
+    state: started
+
+- name: kubernetes => health-check
+  shell: |
+   KUBECONFIG=/etc/rancher/rke2/rke2.yaml /usr/local/bin/kubectl get nodes
+  register: k8s_health 
+  until: "'The connection' not in k8s_health"
+  retries: 18
+  delay: 10

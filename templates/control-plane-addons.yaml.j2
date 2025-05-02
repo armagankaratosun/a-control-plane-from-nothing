@@ -1,0 +1,61 @@
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterProfile
+metadata:
+  name: control-plane
+  annotations:
+    reapply-timestamp: "{{ ansible_date_time.iso8601 }}"
+spec:
+  clusterSelector:
+    matchLabels:
+      role: controlplane
+  helmCharts:
+{% if addons.certmanager %}
+  - repositoryURL:    https://charts.jetstack.io
+    repositoryName:   jetstack
+    chartName:        jetstack/cert-manager
+    chartVersion:     {{ addons.certmanager_version }}
+    releaseName:      cert-manager
+    releaseNamespace: cert-manager
+    helmChartAction:  Install
+    values: |
+      crds:
+        enabled: true
+{% endif %}
+{% if addons.crossplane %}
+  - repositoryURL:    https://charts.crossplane.io/stable
+    repositoryName:   crossplane-stable
+    chartName:        crossplane-stable/crossplane
+    chartVersion:     {{ addons.crossplane_version }}
+    releaseName:      crossplane
+    releaseNamespace: crossplane-system
+    helmChartAction:  Install
+{% endif %}
+{% if addons.cluster_api %}
+  - repositoryURL:    https://kubernetes-sigs.github.io/cluster-api-operator
+    repositoryName:   capi-operator
+    chartName:        capi-operator/cluster-api-operator
+    chartVersion:     {{ addons.cluster_api_version }}
+    releaseName:      capi-operator
+    releaseNamespace: capi-operator-system
+    helmChartAction:  Install
+    values: |
+      core:
+        cluster-api:
+          version: "{{ cluster_api.core.cluster_api.version }}"
+      bootstrap:
+        rke2:
+          version: "{{ cluster_api.bootstrap.rke2.version }}"
+      controlPlane:
+        rke2:
+          version: "{{ cluster_api.controlPlane.rke2.version }}"
+{% if providers.openstack %}
+      infrastructure:
+        openstack: 
+          version: "v0.12.2"
+          namespace: "openstack-infrastructure-system"
+          configSecret:
+            name: openstack-cloud-config
+            namespace: "openstack-infrastructure-system"
+{% endif %}
+{% endif %}
