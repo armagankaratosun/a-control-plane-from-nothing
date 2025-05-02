@@ -1,0 +1,84 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OpenStackCluster
+metadata:
+  name: openstack-capi-cluster
+  namespace: default
+spec:
+  identityRef:
+    name: openstack-cloud-config
+    cloudName: openstack
+  externalNetwork:
+    filter:
+      name: <externalNetworkName>
+  network:
+    filter:
+      name: <privateNetworkName>
+  bastion:
+    enabled: false
+  apiServerLoadBalancer:
+    enabled: false
+  managedSecurityGroups:
+    allowAllInClusterTraffic: true
+  managedSubnets:
+  - cidr: 10.10.2.0/24
+    dnsNameservers:
+    - 8.8.8.8
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OpenStackMachineTemplate
+metadata:
+  name: openstack-capi-cluster-controlplane
+  namespace: default
+spec:
+  template:
+    spec:
+      flavor: <flavorName>
+      image:
+        filter:
+          name: <imageName>
+      sshKeyName: <keyPairName>
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: RKE2ControlPlane
+metadata:
+  name: openstack-capi-cluster
+  namespace: default
+spec:
+  replicas: 1
+  version: v1.31.7+rke2r1
+  serverConfig:
+    cni: cilium
+    cloudProviderName: external
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: OpenStackMachineTemplate
+      name: openstack-capi-cluster-controlplane
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+  registrationMethod: control-plane-endpoint
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: openstack-capi-cluster
+  namespace: default
+  labels:
+    role: user-cluster
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: ["10.42.0.0/16"]
+    serviceDomain: cluster.local
+    services:
+      cidrBlocks: ["10.43.0.0/16"]
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: RKE2ControlPlane
+    name: openstack-capi-cluster
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: OpenStackCluster
+    name: openstack-capi-cluster
